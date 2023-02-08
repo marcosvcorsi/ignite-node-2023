@@ -1,13 +1,10 @@
 import http from "node:http";
 
-import { json } from "./middlewares/json.js";
 import { routes } from "./routes.js";
 import { extractQueryParams } from "./utils/extract-query-params.js";
 
 const server = http.createServer(async (req, res) => {
   const { method, url } = req;
-
-  await json(req, res);
 
   const route = routes.find(
     (route) =>
@@ -15,6 +12,12 @@ const server = http.createServer(async (req, res) => {
   );
 
   if (route) {
+    const buffers = [];
+
+    for await (const chunk of req) {
+      buffers.push(chunk);
+    }
+
     const routeParams = req.url.match(route.path);
 
     const { query, ...params } = routeParams.groups;
@@ -23,6 +26,15 @@ const server = http.createServer(async (req, res) => {
 
     req.query = query ? extractQueryParams(query) : {};
     req.params = params;
+    req.content = Buffer.concat(buffers);
+
+    try {
+      req.body = JSON.parse(Buffer.concat(buffers).toString());
+    } catch {
+      req.body = null;
+    }
+
+    res.setHeader("Content-Type", "application/json");
 
     return route.handler(req, res);
   }

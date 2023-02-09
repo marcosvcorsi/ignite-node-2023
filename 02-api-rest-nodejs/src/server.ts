@@ -14,16 +14,19 @@
 
 // console.log(result);
 
-import fastify from "fastify";
+import fastify from 'fastify';
 
 const app = fastify();
 
-app.get("/", () => {
-  return "Hello World";
+app.get('/', () => {
+  return 'Hello World';
 });
 
 const port = Number(process.env.PORT ?? 3333);
 
 app
   .listen({ port })
-  .then(() => console.log(`Server is running on port ${port}`));
+  .then(() => {
+    console.log(`Server is running on port ${port}`);
+  })
+  .catch(console.error);

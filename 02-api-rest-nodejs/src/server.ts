@@ -1,32 +1,16 @@
-// type User = {
-//   birthYear: number;
-// };
-
-// function calculateAgeOfUser(user: User) {
-//   return new Date().getFullYear() - user.birthYear;
-// }
-
-// // calculateAgeOfUser("Diego");
-// // calculateAgeOfUser({});
-// const result = calculateAgeOfUser({
-//   birthYear: 1991,
-// });
-
-// console.log(result);
-
+import { env } from './env';
 import fastify from 'fastify';
+import cookie from '@fastify/cookie';
+import { transactionRoutes } from './routes/transactions';
 
 const app = fastify();
 
-app.get('/', () => {
-  return 'Hello World';
-});
-
-const port = Number(process.env.PORT ?? 3333);
+app.register(cookie);
+app.register(transactionRoutes, { prefix: 'transactions' });
 
 app
-  .listen({ port })
+  .listen({ port: env.PORT })
   .then(() => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${env.PORT}`);
   })
   .catch(console.error);
